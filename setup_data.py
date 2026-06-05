@@ -55,7 +55,7 @@ GITHUB_TEMPLATES = {
         ("facebookresearch/llama", "Inference code for LLaMA models", 56000, 9800, 620),
         ("THUDM/ChatGLM-6B", "An Open Bilingual Dialogue Language Model", 39000, 5100, 340),
         ("ggerganov/llama.cpp", "Port of Facebook LLaMA model in C/C++", 68000, 9700, 1200),
-        ("Stability-AI/stablediffusion", "High-Resolution Image Synthesis with Latent Diffusion Models", 38000, 5600, 480),
+        ("Stability-AI/generative-models", "High-Resolution Image Synthesis with Latent Diffusion Models", 38000, 5600, 480),
         ("openai/whisper", "Robust Speech Recognition via Large-Scale Weak Supervision", 71000, 8200, 780),
         ("CompVis/stable-diffusion", "A latent text-to-image diffusion model", 68000, 9900, 320),
     ],
