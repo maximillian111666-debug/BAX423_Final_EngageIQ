@@ -42,7 +42,7 @@ from utils.export import export_csv, export_brief_pdf
 
 st.set_page_config(
     page_title="EngageIQ",
-    page_icon="⚡",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -163,14 +163,14 @@ def _parse_tags(tags_raw) -> list[str]:
 def render_header():
     st.markdown("""
     <div class="main-header">
-        <h1>⚡ EngageIQ</h1>
+        <h1>EngageIQ</h1>
         <p>Smart Engagement Opportunity Scorer — GitHub · Hacker News · Multi-source AI-ranked feed</p>
     </div>
     """, unsafe_allow_html=True)
 
 
 def render_sidebar_profile() -> tuple[dict | None, list[str]]:
-    st.sidebar.markdown("## 👤 Your Profile")
+    st.sidebar.markdown("## Your Profile")
     name = st.sidebar.text_input("Name", value="Sofia Chen", key="profile_name")
     bio = st.sidebar.text_area("Bio / Role", value="MSBA student building an open-source portfolio in ML and data engineering.", height=80, key="profile_bio")
     interests_raw = st.sidebar.text_area(
@@ -180,7 +180,7 @@ def render_sidebar_profile() -> tuple[dict | None, list[str]]:
     )
     interests = [i.strip() for i in interests_raw.splitlines() if i.strip()]
 
-    if st.sidebar.button("💾 Save Profile", use_container_width=True):
+    if st.sidebar.button("Save Profile", use_container_width=True):
         conn = get_db_conn()
         profile = get_or_create_profile(conn, name, bio, interests)
         update_profile(conn, profile["id"], bio, interests)
@@ -196,7 +196,7 @@ def render_sidebar_profile() -> tuple[dict | None, list[str]]:
 
 
 def tab_feed(profile: dict, interests: list[str]):
-    st.subheader("🎯 Ranked Engagement Opportunities")
+    st.subheader("Ranked Engagement Opportunities")
 
     col1, col2, col3 = st.columns([2, 1, 1])
     with col1:
@@ -248,17 +248,17 @@ def tab_feed(profile: dict, interests: list[str]):
         with st.container():
             tags = _parse_tags(item.get("tags", []))
             score_pct = int(item.get("composite", 0) * 100)
-            source_icon = {"github": "🐙", "hackernews": "🔶", "reddit": "🟠"}.get(item.get("source", ""), "🔗")
+            source_label = {"github": "GitHub", "hackernews": "HN", "reddit": "Reddit"}.get(item.get("source", ""), "Web")
 
             col_title, col_score = st.columns([5, 1])
             with col_title:
-                st.markdown(f"**#{item.get('rank', '?')} {source_icon} [{item.get('title', '')}]({item.get('url', '#')})**")
-                st.caption(f"{item.get('domain', '')} · ⭐ {item.get('stars', 0):,} · 💬 {item.get('comments', 0)}")
+                st.markdown(f"**#{item.get('rank', '?')} [{item.get('title', '')}]({item.get('url', '#')})**")
+                st.caption(f"{source_label} · {item.get('domain', '')} · Stars: {item.get('stars', 0):,} · Comments: {item.get('comments', 0)}")
             with col_score:
                 color = "#2ecc71" if score_pct >= 60 else "#f39c12" if score_pct >= 40 else "#e74c3c"
                 st.markdown(f"<div style='text-align:center;background:{color};color:white;border-radius:8px;padding:0.4rem;font-weight:bold;font-size:1.1rem'>{score_pct}%</div>", unsafe_allow_html=True)
 
-            with st.expander("📊 Why this? · Actions · Feedback"):
+            with st.expander("Why this? · Suggested Actions · Feedback"):
                 tc1, tc2 = st.columns(2)
                 with tc1:
                     st.markdown("**Score breakdown:**")
@@ -284,29 +284,29 @@ def tab_feed(profile: dict, interests: list[str]):
                     if tags:
                         st.markdown("**Tags:** " + " · ".join(f"`{t}`" for t in tags[:6]))
 
-                if st.button("💡 Get AI Suggested Actions", key=f"suggest_{item['id']}"):
+                if st.button("Get AI Suggested Actions", key=f"suggest_{item['id']}"):
                     with st.spinner("Asking AI…"):
                         suggestion = suggest_actions(item, interests)
                     st.info(suggestion)
 
-                if st.button("🔍 AI Explain (detailed)", key=f"explain_{item['id']}"):
+                if st.button("AI Explain (detailed)", key=f"explain_{item['id']}"):
                     with st.spinner("Generating explanation…"):
                         explanation = explain_opportunity(item, interests, item)
                     st.success(explanation)
 
                 fb_col1, fb_col2, fb_col3 = st.columns(3)
                 with fb_col1:
-                    if st.button("✅ Engage", key=f"engage_{item['id']}", use_container_width=True):
+                    if st.button("Engage", key=f"engage_{item['id']}", use_container_width=True):
                         insert_feedback(conn, profile["id"], item["id"], "engage")
                         record_bandit_feedback(conn, profile["id"], item.get("domain", ""), "engage")
                         st.success("Marked as engaged!")
                 with fb_col2:
-                    if st.button("🔖 Bookmark", key=f"bookmark_{item['id']}", use_container_width=True):
+                    if st.button("Bookmark", key=f"bookmark_{item['id']}", use_container_width=True):
                         insert_feedback(conn, profile["id"], item["id"], "bookmark")
                         record_bandit_feedback(conn, profile["id"], item.get("domain", ""), "bookmark")
                         st.info("Bookmarked!")
                 with fb_col3:
-                    if st.button("⏭️ Skip", key=f"skip_{item['id']}", use_container_width=True):
+                    if st.button("Skip", key=f"skip_{item['id']}", use_container_width=True):
                         insert_feedback(conn, profile["id"], item["id"], "skip")
                         record_bandit_feedback(conn, profile["id"], item.get("domain", ""), "skip")
                         st.warning("Skipped.")
@@ -314,7 +314,7 @@ def tab_feed(profile: dict, interests: list[str]):
 
 
 def tab_analytics():
-    st.subheader("📈 Batch Analytics & Trend Detection")
+    st.subheader("Batch Analytics & Trend Detection")
     if not ensure_data():
         return
 
@@ -380,7 +380,7 @@ def tab_analytics():
 
 
 def tab_learning(profile: dict):
-    st.subheader("🧠 Adaptive Learning (Thompson Sampling Bandit)")
+    st.subheader("Adaptive Learning (Thompson Sampling Bandit)")
     conn = get_db_conn()
 
     st.markdown("""
@@ -402,7 +402,7 @@ def tab_learning(profile: dict):
         st.dataframe(df_prefs, use_container_width=True)
 
     st.markdown("---")
-    if st.button("🔁 Run 50-Round Simulation (benchmark)"):
+    if st.button("Run 50-Round Simulation (benchmark)"):
         with st.spinner("Simulating feedback rounds…"):
             history = simulate_feedback_rounds(conn, profile["id"], n_rounds=50)
         if history:
@@ -418,13 +418,13 @@ def tab_learning(profile: dict):
     if fb:
         st.markdown("**Your feedback history:**")
         c1, c2, c3 = st.columns(3)
-        c1.metric("✅ Engage", fb.get("engage", 0))
-        c2.metric("🔖 Bookmark", fb.get("bookmark", 0))
-        c3.metric("⏭️ Skip", fb.get("skip", 0))
+        c1.metric("Engage", fb.get("engage", 0))
+        c2.metric("Bookmark", fb.get("bookmark", 0))
+        c3.metric("Skip", fb.get("skip", 0))
 
 
 def tab_personas():
-    st.subheader("🧪 Test Persona Results")
+    st.subheader("Test Persona Results")
     PERSONAS = [
         {
             "name": "Sofia — ML Student / Portfolio Builder",
@@ -504,7 +504,7 @@ def tab_personas():
             st.markdown(f"**nDCG@10:** {ndcg:.3f} · **Avg relevance:** {avg_rel:.3f}")
             for item in top10[:5]:
                 tags = _parse_tags(item.get("tags", []))
-                gfi = "🟢 GFI" if "good first issue" in [t.lower() for t in tags] else ""
+                gfi = "[GFI]" if "good first issue" in [t.lower() for t in tags] else ""
                 st.markdown(f"  {item.get('rank','?')}. [{item.get('title','')}]({item.get('url','#')}) "
                             f"— {item.get('domain','')} · {item.get('composite', 0):.0%} {gfi}")
 
@@ -514,7 +514,7 @@ def tab_personas():
 
 
 def tab_export(profile: dict, interests: list[str]):
-    st.subheader("📥 Download Engagement Brief")
+    st.subheader("Download Engagement Brief")
     conn = get_db_conn()
 
     ranked = st.session_state.get("ranked", [])
@@ -546,7 +546,7 @@ def tab_export(profile: dict, interests: list[str]):
                 use_container_width=True,
             )
 
-    if st.button("🤖 Generate AI Executive Summary"):
+    if st.button("Generate AI Executive Summary"):
         with st.spinner("Generating summary…"):
             ai_summary = generate_weekly_brief_summary(summary)
         st.markdown("### AI Executive Summary")
@@ -554,7 +554,7 @@ def tab_export(profile: dict, interests: list[str]):
 
 
 def tab_admin():
-    st.subheader("⚙️ Admin — Data Ingestion & Index Management")
+    st.subheader("Admin — Data Ingestion & Index Management")
     conn = get_db_conn()
     total = count_opportunities(conn)
     emb_count = count_embeddings(conn)
@@ -564,7 +564,7 @@ def tab_admin():
 
     st.markdown("---")
     st.markdown("#### Offline Data Generation")
-    if st.button("🌱 Generate Offline Dataset (10,000+ records)", use_container_width=True):
+    if st.button("Generate Offline Dataset (10,000+ records)", use_container_width=True):
         with st.spinner("Generating dataset — this takes ~30 seconds…"):
             import subprocess, sys
             result = subprocess.run(
@@ -575,14 +575,14 @@ def tab_admin():
         st.success("Done! Refresh the page.")
 
     st.markdown("#### Live API Refresh (requires API keys in .env)")
-    if st.button("🔄 Stream from GitHub + HN APIs", use_container_width=True):
+    if st.button("Stream from GitHub + HN APIs", use_container_width=True):
         with st.spinner("Streaming live data…"):
             from scraper.pipeline import run_live_refresh
             stats = run_live_refresh()
         st.json(stats)
 
     st.markdown("#### FAISS Index")
-    if st.button("🔨 Rebuild Embedding Index", use_container_width=True):
+    if st.button("Rebuild Embedding Index", use_container_width=True):
         get_faiss_index.clear()
         with st.spinner("Building FAISS HNSW index…"):
             index, opp_ids = build_index_from_db(conn)
@@ -599,8 +599,8 @@ def main():
     profile, interests = render_sidebar_profile()
 
     tabs = st.tabs([
-        "🎯 Feed", "📈 Analytics", "🧠 Learning",
-        "🧪 Personas", "📥 Export", "⚙️ Admin"
+        "Feed", "Analytics", "Learning",
+        "Personas", "Export", "Admin"
     ])
 
     with tabs[0]:

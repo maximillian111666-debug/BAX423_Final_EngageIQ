@@ -245,12 +245,12 @@ def get_domain_stats(conn: sqlite3.Connection) -> list[dict]:
 
 def get_time_series(conn: sqlite3.Connection) -> list[dict]:
     return [dict(r) for r in conn.execute("""
-        SELECT substr(fetched_at, 1, 10) as day,
+        SELECT substr(created_at, 1, 10) as day,
                domain,
                COUNT(*) as count,
                SUM(stars) as stars
         FROM opportunities
-        WHERE fetched_at != ''
+        WHERE created_at != ''
         GROUP BY day, domain
         ORDER BY day
     """).fetchall()]

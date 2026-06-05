@@ -512,12 +512,15 @@ def expand_dataset(base_items: list[dict], target_total: int = 10500) -> list[di
         if random.random() < 0.15:
             tags.append("good first issue")
 
+        # Use a real repo URL from the domain templates instead of a fake generated URL
+        real_gh_pools = {d: [t[0] for t in ts] for d, ts in GITHUB_TEMPLATES.items()}
+        gh_url_pool = real_gh_pools.get(domain, list(real_gh_pools.values())[0])
+        gh_url = f"https://github.com/{random.choice(gh_url_pool)}"
         all_items.append({
             "source": source,
             "external_id": f"gen_{source}_{len(all_items)}_{random.randint(0, 999999)}",
-            "url": (f"https://github.com/generated/{title.lower().replace(' ', '-')}"
-                    if source == "github"
-                    else f"https://news.ycombinator.com/item?id={random.randint(30000000, 42000000)}"),
+            "url": (gh_url if source == "github"
+                    else f"https://news.ycombinator.com/item?id={random.randint(36000000, 41000000)}"),
             "title": title,
             "body": body,
             "domain": domain,

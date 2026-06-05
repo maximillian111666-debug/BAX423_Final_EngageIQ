@@ -54,16 +54,15 @@ def simulate_feedback_rounds(conn, profile_id: int, n_rounds: int = 50) -> list[
         action = rng.choice(["engage", "engage", "bookmark", "skip"],
                             p=[0.4, 0.25, 0.15, 0.20])
         record_feedback(conn, profile_id, domain, action)
-        if round_i % 10 == 0:
-            boosts = sample_domain_boosts(conn, profile_id)
-            state = _load_state(conn, profile_id)
-            avg_alpha = np.mean([a for a, b in state.values()])
-            history.append({
-                "round": round_i,
-                "avg_alpha": round(avg_alpha, 3),
-                "top_domain": max(boosts, key=boosts.get),
-                "top_boost": round(boosts[max(boosts, key=boosts.get)], 3),
-            })
+        state = _load_state(conn, profile_id)
+        avg_alpha = np.mean([a for a, b in state.values()])
+        boosts = sample_domain_boosts(conn, profile_id)
+        history.append({
+            "round": round_i + 1,
+            "avg_alpha": round(avg_alpha, 3),
+            "top_domain": max(boosts, key=boosts.get),
+            "top_boost": round(boosts[max(boosts, key=boosts.get)], 3),
+        })
     return history
 
 

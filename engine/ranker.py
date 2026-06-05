@@ -70,15 +70,15 @@ def explain_ranking(item: dict) -> str:
     composite = item.get("composite", 0)
 
     lines.append(f"**Overall Score: {composite:.0%}**")
-    lines.append(f"- 🎯 Relevance to your profile: {rel:.0%}")
-    lines.append(f"- 🏘️ Community health (stars/forks/comments): {health:.0%}")
-    lines.append(f"- 👁️ Visibility potential: {vis:.0%}")
-    lines.append(f"- 🛠️ Engagement effort (lower = easier): {1 - effort:.0%}")
+    lines.append(f"- Relevance to your profile: {rel:.0%}")
+    lines.append(f"- Community health (stars/forks/comments): {health:.0%}")
+    lines.append(f"- Visibility potential: {vis:.0%}")
+    lines.append(f"- Engagement effort (lower = easier): {1 - effort:.0%}")
 
     if rel > 0.7:
-        lines.append("\n✅ Strong match with your stated interests.")
+        lines.append("\nStrong match with your stated interests.")
     if item.get("stars", 0) > 1000:
-        lines.append(f"⭐ High-signal repo with {item['stars']:,} stars.")
+        lines.append(f"High-signal repo with {item['stars']:,} stars.")
     tags = item.get("tags", [])
     if isinstance(tags, str):
         import json
@@ -87,7 +87,7 @@ def explain_ranking(item: dict) -> str:
         except Exception:
             tags = []
     if "good first issue" in [t.lower() for t in tags]:
-        lines.append("🟢 Has 'good first issue' label — beginner friendly.")
+        lines.append("Tagged 'good first issue' — beginner friendly.")
     if item.get("source") == "hackernews":
-        lines.append("📰 Trending on Hacker News — high visibility opportunity.")
+        lines.append("Trending on Hacker News — high visibility opportunity.")
     return "\n".join(lines)
