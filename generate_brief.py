@@ -134,6 +134,7 @@ def build():
     # ══════════════════════════════════════════════════════════════════════
     story += [
         Paragraph("EngageIQ — Smart Engagement Opportunity Scorer", title_s),
+        Paragraph("Maxine Ma", sub_s),
         hr(),
         sp(6),
     ]
