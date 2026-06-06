@@ -162,7 +162,7 @@ def build():
         "  Offline DB: synthetic dataset seeded from real GH/HN metadata — live refresh via Admin tab",
         "   ↓  Streaming Pipeline — threading.Queue (producer/consumer)",
         "   ↓  MinHash Deduplication  (128 hash fns, LSH banding, threshold=0.8)",
-        "   ↓  SQLite  — 10,500 records  ·  15 technical domains",
+        "   ↓  SQLite  — 10,699 records  ·  15 technical domains",
         "   ↓  Sentence-BERT Embeddings  (all-MiniLM-L6-v2, dim=384)",
         "   ↓  FAISS HNSW Index  (efConstruction=200, efSearch=64)",
         "   ↓  Multi-Stage Ranking Pipeline",
@@ -197,7 +197,7 @@ def build():
             "<b>Embedding (BAX-423: Embeddings):</b> Sentence-BERT (all-MiniLM-L6-v2) "
             "encodes the concatenated title+body into a 384-dim normalized vector. User "
             "interest profiles are encoded identically, enabling cosine similarity via "
-            "inner product. All 10,500 vectors are indexed in a FAISS HNSW graph for "
+            "inner product. All 10,699 vectors are indexed in a FAISS HNSW graph for "
             "approximate nearest-neighbor retrieval.",
             body_s,
         ),
@@ -373,7 +373,7 @@ def build():
         ["Build command",  "pip install -r requirements.txt && python setup_data.py"],
         ["Start command",  "streamlit run app.py"],
         ["Python version", "3.11"],
-        ["Offline DB",     "data/engageiq.db  (10,500 records, 38 MB)"],
+        ["Offline DB",     "data/engageiq.db  (10,699 records, 38 MB)"],
         ["FAISS index",    "data/faiss.index  (18 MB, HNSW, dim=384)"],
     ]
     story.append(tbl(deploy_data, [1.5*inch, 5.0*inch]))
@@ -429,7 +429,7 @@ def build():
          P("Used partial rewards (engage=1.0, bookmark=0.8) over binary rewards.")],
         [P("6"), P("LLM 'Why This?' explanations via OpenAI-compatible API (DeepSeek)"),
          P("Added template fallback when no API key configured for offline grading.")],
-        [P("7"), P("Offline dataset generator: 10,500+ records, 15 domains, no API calls"),
+        [P("7"), P("Offline dataset generator: 10,699 records, 15 domains, no API calls"),
          P("Added expand_dataset() for synthetic variants ensuring domain balance.")],
         [P("8"), P("Streamlit dashboard: 6 tabs with CSS and Plotly charts"),
          P("Used @st.cache_resource for DB/FAISS to prevent per-interaction reload.")],

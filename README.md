@@ -39,8 +39,7 @@ Open http://localhost:8501
 ```
 Data Sources
   GitHub REST API v3 ──┐
-  GH Archive           ├──► Streaming Pipeline (threading + queue)
-  Hacker News API ─────┘         │
+  Hacker News API ─────┴──► Streaming Pipeline (threading + queue)         │
                                  ▼
                       MinHash Deduplication (Sketching)
                                  │
