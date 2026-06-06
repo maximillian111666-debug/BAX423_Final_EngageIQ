@@ -107,7 +107,7 @@ def _auto_setup():
     if not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) < 1000:
         import subprocess
         setup_script = os.path.join(os.path.dirname(__file__), "setup_data.py")
-        with st.spinner("First-time setup: generating offline dataset (≈30 seconds)…"):
+        with st.spinner("First-time setup: generating synthetic demo dataset (≈30 seconds)…"):
             subprocess.run([sys.executable, setup_script], check=False)
 
 
@@ -402,6 +402,7 @@ def tab_learning(profile: dict):
         st.dataframe(df_prefs, use_container_width=True)
 
     st.markdown("---")
+    st.caption("Simulation runs in isolated memory — your real preference profile is not modified.")
     if st.button("Run 50-Round Simulation (benchmark)"):
         with st.spinner("Simulating feedback rounds…"):
             history = simulate_feedback_rounds(conn, profile["id"], n_rounds=50)
@@ -412,7 +413,7 @@ def tab_learning(profile: dict):
                           labels={"avg_alpha": "Avg engagement alpha", "round": "Round"})
             fig.update_layout(plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig, use_container_width=True, key="sim_hist")
-            st.success(f"After 50 rounds, avg alpha = {df_hist['avg_alpha'].iloc[-1]:.3f}")
+            st.success(f"After 50 rounds, avg alpha = {df_hist['avg_alpha'].iloc[-1]:.3f} (proxy metric — simulated rounds)")
 
     fb = get_feedback_counts(conn, profile["id"])
     if fb:
@@ -563,8 +564,8 @@ def tab_admin():
     a2.metric("Embedded records", f"{emb_count:,}")
 
     st.markdown("---")
-    st.markdown("#### Offline Data Generation")
-    if st.button("Generate Offline Dataset (10,000+ records)", use_container_width=True):
+    st.markdown("#### Synthetic Demo Dataset Generation")
+    if st.button("Generate Synthetic Demo Dataset (10,000+ records)", use_container_width=True):
         with st.spinner("Generating dataset — this takes ~30 seconds…"):
             import subprocess, sys
             result = subprocess.run(

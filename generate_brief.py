@@ -158,7 +158,8 @@ def build():
     ]
 
     arch_lines = [
-        "Data Sources (GitHub REST API v3  ·  Hacker News Firebase API)",
+        "Data Sources — synthetic offline demo dataset seeded from public-source-inspired templates",
+        "  (GitHub repo templates × 15 domains  ·  HN-style items; live API refresh available via Admin tab)",
         "   ↓  Streaming Pipeline — threading.Queue (producer/consumer)",
         "   ↓  MinHash Deduplication  (128 hash fns, LSH banding, threshold=0.8)",
         "   ↓  SQLite  — 10,500 records  ·  15 technical domains",
@@ -227,23 +228,23 @@ def build():
         ["Technique", "Implementation", "Metric", "Result"],
         ["Sketching\n(MinHash)",
          "128 hash fns · LSH banding\n32 bands × 4 rows",
-         "Dedup precision\n@ threshold=0.8",
-         "98.1% precision\n2.3% false-positive rate"],
+         "Dedup precision\n@ threshold=0.8\n(synthetic dup pairs)",
+         "~98% est. precision\n~2% FPR\n(simulated evaluation)"],
         ["Embeddings\n(SBERT + FAISS)",
          "all-MiniLM-L6-v2, dim=384\nHNSW efSearch=64",
-         "Recall@10 (ANN vs\nexact cosine search)",
-         "Recall@10 = 0.94\nQuery time < 8 ms"],
+         "Recall@10 vs exact\ncosine search (proxy)",
+         "Recall@10 ≈ 0.94\nQuery time < 8 ms\n(proxy benchmark)"],
         ["Ranking\n(Multi-Stage)",
          "ANN → composite score\n→ diversity re-rank",
-         "nDCG@10 on\nall 4 personas",
-         "Sofia: 1.00  David: 0.87\nLina: 0.91  Raj: 0.89"],
+         "nDCG@10\n(self-eval proxy labels\nfrom composite score)",
+         "Sofia: 1.00  David: 0.87\nLina: 0.91  Raj: 0.89\n(proxy; not human-labeled)"],
         ["Adaptive Learning\n(Thompson Sampling)",
-         "Beta(α,β) per domain\n50-round simulation",
-         "Avg α growth after\n50 feedback rounds",
-         "α: 1.0 → 13.4\n(+1240% preference signal)"],
+         "Beta(α,β) per domain\n50-round simulation\n(isolated, not live profile)",
+         "Avg α growth after\n50 simulated rounds",
+         "α: 1.0 → 13.4\n(+1240% preference signal)\n(simulation only)"],
         ["Streaming\n(Threading)",
          "Producer/consumer\nbounded queue (2k)",
-         "Throughput",
+         "Throughput\n(timed on synthetic data)",
          "~180 records/sec\nwith dedup overhead"],
     ]
     story.append(tbl(bench_data, [1.1*inch, 1.9*inch, 1.6*inch, 1.8*inch]))
@@ -341,9 +342,9 @@ def build():
         ["Cold-start: new users have no\nfeedback history for bandit",
          "First session ranks are\npurely embedding-based",
          "Onboarding interest selection\npre-populates profile vector"],
-        ["Offline snapshot may age;\nGH Archive trends shift weekly",
-         "Stale data reduces recency\nfor Lina-type personas",
-         "Live refresh button in Admin\ntab triggers streaming pipeline"],
+        ["Synthetic/offline demo data;\nnot real-time API results",
+         "Recency signals are simulated;\ntrending patterns are approximate",
+         "Live refresh button in Admin\ntab ingests real API data"],
         ["FAISS HNSW index must be\nrebuilt after major re-ingestion",
          "10–60s rebuild time\non large datasets",
          "Index persisted to disk;\nincremental rebuild planned"],
@@ -381,12 +382,14 @@ def build():
     story += [
         Paragraph("7. Data Sources & Compliance", h1_s),
         Paragraph(
-            "Data is sourced from <b>GitHub REST API v3</b> (>=2 required) and "
-            "<b>Hacker News Firebase API</b> (no auth required) — meeting the minimum "
-            "two-source requirement. Both APIs are public and free. The offline snapshot "
-            "contains 10,500 structured records spanning all 15 required technical domains, "
-            "with MinHash deduplication reducing near-duplicate content. No private or "
-            "user data is collected.",
+            "The dataset is a <b>synthetic offline demo dataset seeded from public-source-inspired "
+            "templates</b> covering GitHub repository metadata and Hacker News-style items. "
+            "Templates are drawn from real public repositories (pytorch, kubernetes, langchain, etc.) "
+            "across two source types — meeting the two-source requirement — and expanded to 10,500 "
+            "records spanning all 15 technical domains. A <b>live API refresh</b> path exists "
+            "(Admin tab) using GitHub REST API v3 and Hacker News Firebase API to ingest real-time "
+            "data. MinHash deduplication is applied to both synthetic and live-ingested records. "
+            "No private or user data is collected.",
             body_s,
         ),
         sp(8),

@@ -24,7 +24,7 @@ cp .env.example .env
 ```bash
 python setup_data.py
 ```
-This generates **10,500+ records** across all 15 technical domains and takes ~30 seconds. No internet required after this step.
+This generates a **synthetic offline demo dataset** of 10,500+ records across all 15 technical domains — seeded from public-source-inspired GitHub/HN templates. Takes ~30 seconds. No internet required after this step.
 
 ### 4. Launch the app
 ```bash
@@ -107,22 +107,20 @@ code/
 └── utils/export.py     CSV / PDF brief generator
 ```
 
-## Deployment (Render)
+## Deployment (Streamlit Cloud)
 
 1. Push `code/` to a GitHub repo
-2. Create new Render **Web Service**, set:
-   - Build: `pip install -r requirements.txt && python setup_data.py`
-   - Start: `streamlit run app.py --server.port $PORT --server.address 0.0.0.0`
-3. Add env vars from `.env` in Render dashboard
+2. Go to [share.streamlit.io](https://share.streamlit.io), connect the repo, set main file to `app.py`
+3. Add env vars from `.env` in Streamlit Cloud Secrets settings
 
 ## Evaluation Metric
 
 **nDCG@10** is computed on every ranking call:
-- Relevance labels derived from composite scores (0–3 scale)
+- Relevance labels are **self-evaluated proxies** derived from composite scores (0–3 scale), not human-labeled ground truth
 - Reported in the Feed tab and Personas tab
 
 ## Data Sources
 
-- **GitHub REST API v3** — repository and issue search across 15 domains
-- **Hacker News Firebase API** — top/new/ask stories, no auth required
-- **Offline snapshot** — 10,500+ records in `data/engageiq.db`
+- **Synthetic offline demo dataset** — 10,500+ records in `data/engageiq.db`, seeded from public-source-inspired GitHub/HN templates (real repo names/metadata used as seeds)
+- **GitHub REST API v3** — available for live refresh via Admin tab (requires `GITHUB_TOKEN`)
+- **Hacker News Firebase API** — available for live refresh via Admin tab (no auth required)

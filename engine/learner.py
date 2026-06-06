@@ -44,19 +44,28 @@ def sample_domain_boosts(conn, profile_id: int, n_samples: int = 1000) -> dict[s
 
 
 def simulate_feedback_rounds(conn, profile_id: int, n_rounds: int = 50) -> list[dict]:
-    """Simulate n_rounds of feedback and return the evolution of nDCG proxy per domain."""
+    """Simulate n_rounds of feedback using an isolated in-memory state.
+    Does NOT write to the real profile's bandit state."""
     rng = np.random.default_rng(42)
     history: list[dict] = []
-    state = _load_state(conn, profile_id)
+    # Start from uniform priors — isolated from the real user profile
+    state: dict[str, list[float]] = {d: [ALPHA_INIT, BETA_INIT] for d in DOMAINS}
 
     for round_i in range(n_rounds):
         domain = rng.choice(DOMAINS)
         action = rng.choice(["engage", "engage", "bookmark", "skip"],
                             p=[0.4, 0.25, 0.15, 0.20])
-        record_feedback(conn, profile_id, domain, action)
-        state = _load_state(conn, profile_id)
-        avg_alpha = np.mean([a for a, b in state.values()])
-        boosts = sample_domain_boosts(conn, profile_id)
+        reward = {"engage": ENGAGE_REWARD, "bookmark": BOOKMARK_REWARD,
+                  "skip": SKIP_REWARD}.get(action, 0.0)
+        state[domain][0] += reward
+        state[domain][1] += 1.0 - reward
+
+        avg_alpha = np.mean([ab[0] for ab in state.values()])
+        boosts: dict[str, float] = {}
+        for d, (a, b) in state.items():
+            boosts[d] = 0.7 + 0.6 * np.random.beta(a, b, 1000).mean()
+        max_b = max(boosts.values())
+        boosts = {d: v / max_b for d, v in boosts.items()}
         history.append({
             "round": round_i + 1,
             "avg_alpha": round(avg_alpha, 3),

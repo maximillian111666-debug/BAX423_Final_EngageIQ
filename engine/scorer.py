@@ -25,13 +25,14 @@ def visibility_potential(opp: dict) -> float:
 
 def effort_score(opp: dict) -> float:
     """Higher = easier to engage (more beginner-friendly)."""
-    tags = [t.lower() for t in (opp.get("tags") or [])]
-    if isinstance(tags, str):
-        import json
+    import json
+    tags_raw = opp.get("tags") or []
+    if isinstance(tags_raw, str):
         try:
-            tags = json.loads(tags)
+            tags_raw = json.loads(tags_raw)
         except Exception:
-            tags = []
+            tags_raw = []
+    tags = [t.lower() for t in tags_raw if isinstance(t, str)]
     beginner_tags = {"good first issue", "beginner", "easy", "help wanted", "starter", "first-timer"}
     has_beginner = bool(beginner_tags & set(tags))
     comments = opp.get("comments", 0)
