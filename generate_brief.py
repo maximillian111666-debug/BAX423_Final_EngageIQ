@@ -387,10 +387,12 @@ def build():
             "searches repositories and issues across all 15 domain query sets) and "
             "Hacker News Firebase API (<i>scraper/hackernews_scraper.py</i> — no auth required, "
             "fetches top/new/ask stories classified by keyword). Both scrapers feed the "
-            "streaming pipeline. The <b>offline DB</b> uses a synthetic dataset seeded from "
-            "real public repository metadata (pytorch, kubernetes, langchain, etc.) to ensure "
-            "domain coverage and grading reliability without requiring live API quotas. "
-            "A live refresh button (Admin tab) triggers the real scrapers against the live APIs.",
+            "streaming pipeline. The <b>offline DB</b> contains 10,699 records: "
+            "313 are real HN stories fetched directly from the HN Firebase API "
+            "(genuine story IDs), plus a synthetic dataset seeded from real GitHub "
+            "repository metadata (pytorch, kubernetes, langchain, etc.) ensuring full "
+            "domain coverage. A live refresh button (Admin tab) triggers both scrapers "
+            "against the live APIs.",
             body_s,
         ),
         sp(4),
