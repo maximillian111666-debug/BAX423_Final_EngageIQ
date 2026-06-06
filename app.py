@@ -102,12 +102,24 @@ st.markdown("""
 
 
 def _auto_setup():
-    """Run setup_data.py automatically if the DB is missing (e.g., first boot on Streamlit Cloud)."""
+    """Run setup_data.py if DB is missing or contains fake generated URLs."""
     from config import DB_PATH
-    if not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) < 1000:
+    import sqlite3 as _sqlite3
+    needs_setup = not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) < 1000
+    if not needs_setup:
+        try:
+            _c = _sqlite3.connect(DB_PATH)
+            fake = _c.execute("SELECT COUNT(*) FROM opportunities WHERE url LIKE '%generated%'").fetchone()[0]
+            total = _c.execute("SELECT COUNT(*) FROM opportunities").fetchone()[0]
+            _c.close()
+            if fake > 100:
+                needs_setup = True
+        except Exception:
+            needs_setup = True
+    if needs_setup:
         import subprocess
         setup_script = os.path.join(os.path.dirname(__file__), "setup_data.py")
-        with st.spinner("First-time setup: generating synthetic demo dataset (≈30 seconds)…"):
+        with st.spinner("First-time setup: generating dataset (≈60 seconds)…"):
             subprocess.run([sys.executable, setup_script], check=False)
 
 
