@@ -35,12 +35,30 @@ def rerank(scored_items: list[dict], top_n: int = 50,
     if not diversity:
         final = sorted_items[:top_n]
     else:
-        final: list[dict] = []
+        from collections import defaultdict
+        # Phase 1: guarantee best item from each domain (cross-domain coverage)
+        by_domain: dict[str, list] = defaultdict(list)
         for item in sorted_items:
-            penalty = _diversity_penalty(item, final)
+            by_domain[item.get("domain", "")].append(item)
+        guaranteed = [items[0] for items in by_domain.values() if items]
+
+        # Phase 2: fill remaining slots greedily by score with diversity penalty
+        used = {id(g) for g in guaranteed}
+        pool = [item for item in sorted_items if id(item) not in used]
+        slots_left = max(0, top_n - len(guaranteed))
+        selected: list[dict] = []
+        for item in pool:
+            if len(selected) >= slots_left:
+                break
+            penalty = _diversity_penalty(item, guaranteed + selected)
             item["final_score"] = max(0.0, item.get("composite", 0) - penalty)
-            final.append(item)
-        final = sorted(final, key=lambda x: x.get("final_score", 0), reverse=True)[:top_n]
+            selected.append(item)
+
+        for item in guaranteed:
+            item["final_score"] = item.get("composite", 0)
+
+        final = sorted(guaranteed + selected,
+                       key=lambda x: x.get("final_score", 0), reverse=True)[:top_n]
 
     for rank, item in enumerate(final, 1):
         item["rank"] = rank
@@ -54,8 +72,19 @@ def rerank(scored_items: list[dict], top_n: int = 50,
 def full_pipeline(profile_vec: np.ndarray, faiss_index, opp_ids: list[int],
                   opps_by_id: dict, opp_vecs_by_id: dict,
                   domain_boosts: dict[str, float] | None = None,
-                  top_k_retrieve: int = 200, top_n_final: int = 50) -> tuple[list[dict], float]:
+                  top_k_retrieve: int = 1000, top_n_final: int = 50) -> tuple[list[dict], float]:
     candidates = retrieve_candidates(profile_vec, faiss_index, opp_ids, top_k=top_k_retrieve)
+    # Supplement with one item from any domain missing in FAISS candidates
+    candidate_ids = {opp_id for opp_id, _ in candidates}
+    domains_covered = {opps_by_id[opp_id].get("domain")
+                       for opp_id, _ in candidates if opp_id in opps_by_id}
+    all_domains = {opp.get("domain") for opp in opps_by_id.values()}
+    for domain in all_domains - domains_covered:
+        for opp in opps_by_id.values():
+            if opp.get("domain") == domain and opp["id"] not in candidate_ids:
+                candidates.append((opp["id"], 0.0))
+                candidate_ids.add(opp["id"])
+                break
     scored = score_candidates(candidates, opps_by_id, profile_vec, opp_vecs_by_id, domain_boosts)
     ranked, ndcg = rerank(scored, top_n=top_n_final)
     return ranked, ndcg
