@@ -134,10 +134,6 @@ def build():
     # ══════════════════════════════════════════════════════════════════════
     story += [
         Paragraph("EngageIQ — Smart Engagement Opportunity Scorer", title_s),
-        Paragraph(
-            "BAX-423 Big Data  ·  Spring 2026  ·  Maxine Ma  ·  UC Davis GSM",
-            sub_s,
-        ),
         hr(),
         sp(6),
     ]
