@@ -413,7 +413,9 @@ def tab_learning(profile: dict):
                           labels={"avg_alpha": "Avg engagement alpha", "round": "Round"})
             fig.update_layout(plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig, use_container_width=True, key="sim_hist")
-            st.success(f"After 50 rounds, avg alpha = {df_hist['avg_alpha'].iloc[-1]:.3f} (proxy metric — simulated rounds)")
+            final_alpha = df_hist['avg_alpha'].iloc[-1]
+            pct = (final_alpha - 1.0) / 1.0 * 100
+            st.success(f"After 50 rounds, avg α = {final_alpha:.3f} (+{pct:.0f}% from baseline 1.0) — isolated simulation, real profile unchanged.")
 
     fb = get_feedback_counts(conn, profile["id"])
     if fb:
